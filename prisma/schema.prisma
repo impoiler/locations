@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model State {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  districts District[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("state")
+}
+
+model District {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  stateId      String
+  state        State         @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  subDistricts SubDistrict[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("district")
+}
+
+model SubDistrict {
+  id         String     @id @default(cuid())
+  name       String     @unique
+  districtId String
+  district   District   @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  villages   Villages[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("sub_district")
+}
+
+model Villages {
+  id            String      @id @default(cuid())
+  name          String
+  subDistrictId String
+  subDistrict   SubDistrict @relation(fields: [subDistrictId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("villages")
+}
