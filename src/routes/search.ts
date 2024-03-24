@@ -6,14 +6,14 @@ import { Prisma } from "@prisma/client";
 const router = Router();
 
 interface Query {
-  type: "state" | "district" | "subdistrict"
+  type: "country" | "state" | "district" | "subdistrict"
   id: string
 }
 
-const allowdTypes = ["state", "district", "subdistrict"]
+const allowdTypes = ["country", "state", "district", "subdistrict"]
 
 router.get("/", async (req: Request, res: Response) => {
-  if (!req.query.type || !req.query.id) {
+  if (!req.query.type || req.query.type !== "country" && !req.query.id) {
     return Error(res, "Pass type and id to see the result", 400)
   }
 
@@ -28,7 +28,16 @@ router.get("/", async (req: Request, res: Response) => {
 
   try {
     let data
+
+
+
     switch (Q.type) {
+      case "country":
+
+        data = await prisma.state.findMany(
+        )
+        break;
+
       case "state":
         data = await prisma.state.findUnique({
           where: {
@@ -67,7 +76,7 @@ router.get("/", async (req: Request, res: Response) => {
         return Error(res, "Something went wrong!", 400)
     }
 
-    utilResponse(res, data||[], 200)
+    utilResponse(res, data || [], 200)
   } catch (error) {
     Error(res, error, 400);
   }
